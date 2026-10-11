@@ -1,7 +1,10 @@
 {
     "name": "ArcaneMotion.Gestures",
     "rootNamespace": "ArcaneMotion.Gestures",
-    "references": [],
+    "references": [
+        "Unity.InputSystem",
+        "Unity.XR.Interaction.Toolkit"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
