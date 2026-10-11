@@ -1,0 +1,18 @@
+{
+    "name": "ArcaneMotion.Gestures.Editor",
+    "rootNamespace": "ArcaneMotion.Gestures.Editor",
+    "references": [
+        "ArcaneMotion.Gestures"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
