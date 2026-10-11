@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "name": "Gesture Input",
+    "maps": [
+        {
+            "name": "Gesture",
+            "id": "d5de7c6f-3f15-4e41-990c-c6b6255e49ca",
+            "actions": [
+                {
+                    "name": "Capture Left",
+                    "type": "Button",
+                    "id": "2ce87601-3f19-4ca6-95d6-e620e57cff61",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "Capture Right",
+                    "type": "Button",
+                    "id": "647f67e5-84b4-4702-ae54-6904c0d57253",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ae5876a8-0929-474a-8579-1f8004045e70",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Capture Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2b326ee3-b44c-42f1-9572-acd982243db8",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Capture Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
