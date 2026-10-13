@@ -54,7 +54,7 @@ namespace ArcaneMotion.Gestures.Tests
             };
 
             var session = new GestureSession(library);
-            session.Begin();
+            session.Begin(Quaternion.identity);
             int expectedCount = 0;
             for (int i = 0; i < samples.Length; i++)
             {
@@ -84,7 +84,7 @@ namespace ArcaneMotion.Gestures.Tests
             // samples, and every second sample is 2.2 cm from the last stored point.
             const float frameTime = 1f / 90f;
             var session = new GestureSession(library);
-            session.Begin();
+            session.Begin(Quaternion.identity);
             for (int frame = 0; frame < 10; frame++)
                 session.Advance(OnLine(frame * frameTime), frame * frameTime);
 
@@ -94,16 +94,18 @@ namespace ArcaneMotion.Gestures.Tests
         }
 
         [Test]
-        public void Begin_StartsANewPathAtTheNextSample()
+        public void Begin_StartsANewGestureAtTheNextSample()
         {
             var session = new GestureSession(library);
-            session.Begin();
+            session.Begin(new Quaternion(0.1f, 0.7f, -0.1f, 0.7f));
             session.Advance(OnLine(0f), 0f);
             session.Advance(OnLine(0.1f), 0.2f);
 
-            session.Begin();
+            var headRotation = new Quaternion(-0.2f, 0.3f, 0.1f, 0.9f);
+            session.Begin(headRotation);
             Assert.That(session.Path.Count, Is.Zero);
             Assert.That(session.Path.Length, Is.Zero);
+            Assert.That(session.HeadRotation, Is.EqualTo(headRotation));
 
             // Within the spacing of the last gesture's newest point, but stored, because it is the
             // new gesture's first sample.

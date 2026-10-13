@@ -20,6 +20,9 @@ namespace ArcaneMotion.Gestures
         [Tooltip("The XR Origin's Camera Offset: the space that controller poses are tracked in.")]
         [SerializeField] private Transform trackingSpace;
 
+        [Tooltip("The XR Origin's Main Camera: the player's head.")]
+        [SerializeField] private Transform head;
+
         [Tooltip("The button held while drawing a gesture: this hand's action in Gesture Input.")]
         [SerializeField] private XRInputButtonReader captureButton = new XRInputButtonReader("Capture");
 
@@ -29,6 +32,11 @@ namespace ArcaneMotion.Gestures
         // Raised, with this capture, on the first frame the button reads as held, after the session
         // has begun the new gesture.
         public event Action<GestureCapture> Started;
+
+        // Raised, with this capture, each frame while the button is held, after the session has taken
+        // the frame's sample: the controller's position in tracking space and the seconds since the
+        // press. Every frame's sample is raised, including those the session does not store.
+        public event Action<GestureCapture, Vector3, float> Sampled;
 
         // Raised, with this capture, on the first frame the button reads as released after a
         // gesture. A gesture abandoned by disabling this component raises nothing.
@@ -40,6 +48,10 @@ namespace ArcaneMotion.Gestures
         // next press.
         public GesturePath Path => session.Path;
 
+        // The head's rotation in tracking space at the current gesture's press, or the last
+        // gesture's until the next press.
+        public Quaternion HeadRotation => session.HeadRotation;
+
         public Transform TrackedController => trackedController;
 
         public Transform TrackingSpace => trackingSpace;
@@ -48,12 +60,12 @@ namespace ArcaneMotion.Gestures
         // edits to the library.
         private void OnEnable()
         {
-            if (library == null || trackedController == null || trackingSpace == null)
+            if (library == null || trackedController == null || trackingSpace == null || head == null)
             {
                 // Disabled first, so that Update does not run without its references.
                 enabled = false;
                 throw new UnassignedReferenceException(
-                    $"{nameof(GestureCapture)} on '{name}' needs Library, Tracked Controller, and Tracking Space assigned.");
+                    $"{nameof(GestureCapture)} on '{name}' needs Library, Tracked Controller, Tracking Space, and Head assigned.");
             }
 
             session = new GestureSession(library);
@@ -101,10 +113,14 @@ namespace ArcaneMotion.Gestures
             {
                 IsCapturing = true;
                 pressTime = now;
-                session.Begin();
+                // In tracking space, like the positions.
+                session.Begin(Quaternion.Inverse(trackingSpace.rotation) * head.rotation);
                 Started?.Invoke(this);
             }
-            session.Advance(trackingSpace.InverseTransformPoint(trackedController.position), (float)(now - pressTime));
+            Vector3 position = trackingSpace.InverseTransformPoint(trackedController.position);
+            float time = (float)(now - pressTime);
+            session.Advance(position, time);
+            Sampled?.Invoke(this, position, time);
         }
 
         // Why the capture button cannot read input, or null if no problem that can be checked is found.

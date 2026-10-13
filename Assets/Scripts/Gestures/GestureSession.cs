@@ -4,8 +4,9 @@ using UnityEngine;
 namespace ArcaneMotion.Gestures
 {
     // One hand's gestures, as plain C# so that tests and recording replays run the same code as the
-    // game. GestureCapture feeds it the controller's position in tracking space each frame, with the
-    // seconds since the press, and the session keeps the gesture's stored points.
+    // game. GestureCapture gives it the head's rotation at the press, then the controller's position
+    // in tracking space each frame, with the seconds since the press, and the session keeps the
+    // gesture's stored points.
     public sealed class GestureSession
     {
         private readonly float minPointSpacing;
@@ -21,10 +22,15 @@ namespace ArcaneMotion.Gestures
         // The current gesture's stored points, or the last gesture's until the next Begin.
         public GesturePath Path { get; } = new GesturePath();
 
-        // Starts a new gesture at the button press.
-        public void Begin()
+        // The head's rotation in tracking space at the current gesture's press, or the last
+        // gesture's until the next Begin.
+        public Quaternion HeadRotation { get; private set; } = Quaternion.identity;
+
+        // Starts a new gesture at the button press, given the head's rotation in tracking space then.
+        public void Begin(Quaternion headRotation)
         {
             Path.Clear();
+            HeadRotation = headRotation;
         }
 
         // Runs every frame while the button is held. Stores the sample only when it is at least the
