@@ -10812,6 +10812,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
+--- !u!4 &1373153107 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7917674758326848202, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
+  m_PrefabInstance: {fileID: 1373153106}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1390846723
 GameObject:
   m_ObjectHideFlags: 0
@@ -11513,6 +11518,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7643345584664130613, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
+      propertyPath: hand
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2437252941775820024, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.5906
@@ -11557,6 +11566,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gesture Hand Right
       objectReference: {fileID: 0}
+    - target: {fileID: 7533248264876230047, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
+      propertyPath: head
+      value: 
+      objectReference: {fileID: 1373153107}
     - target: {fileID: 7533248264876230047, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
       propertyPath: trackingSpace
       value: 
@@ -13618,6 +13631,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7643345584664130613, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
+      propertyPath: hand
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2437252941775820024, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.5906
@@ -13662,6 +13679,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gesture Hand Left
       objectReference: {fileID: 0}
+    - target: {fileID: 7533248264876230047, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
+      propertyPath: head
+      value: 
+      objectReference: {fileID: 1373153107}
     - target: {fileID: 7533248264876230047, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
       propertyPath: trackingSpace
       value: 
