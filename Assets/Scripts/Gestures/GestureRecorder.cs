@@ -111,9 +111,10 @@ namespace ArcaneMotion.Gestures
                 return "Hand is not set.";
             if (string.IsNullOrWhiteSpace(label))
                 return "Label is empty.";
-            // Windows drops spaces from the end of a folder name, so the folder would not match the label.
-            if (label != label.Trim())
-                return $"Label '{label}' has spaces at its start or end.";
+            // Windows drops spaces and dots from the end of a folder name, so the folder would not match
+            // the label. The dot check also rejects . and .., which would save outside the label's folder.
+            if (label != label.Trim() || label.EndsWith("."))
+                return $"Label '{label}' has spaces at its start or end, or ends with a dot.";
             if (label.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 return $"Label '{label}' has a character that a folder name cannot have.";
             return null;

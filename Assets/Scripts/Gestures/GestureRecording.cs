@@ -114,6 +114,15 @@ namespace ArcaneMotion.Gestures
             if (positions.Length != times.Length)
                 return $"it has {positions.Length} {(positions.Length == 1 ? "position" : "positions")} " +
                        $"but {times.Length} {(times.Length == 1 ? "time" : "times")}.";
+            if (note == null)
+                return "it has no note.";
+            if (hand == null)
+                return "it has no hand.";
+            if (recordedAtUtc == null)
+                return "it has no recording time.";
+            // Equals, because Unity's == compares by dot product and never finds the zero quaternion equal.
+            if (headRotation.Equals(default(Quaternion)))
+                return "it has no head rotation.";
             return null;
         }
     }
