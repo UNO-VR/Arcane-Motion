@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4528653427333104100}
   - component: {fileID: 7533248264876230047}
   - component: {fileID: 2772852503496918819}
+  - component: {fileID: -7643345584664130613}
   m_Layer: 0
   m_Name: Gesture Hand
   m_TagString: Untagged
@@ -166,6 +167,7 @@ MonoBehaviour:
   library: {fileID: 11400000, guid: 69fcae78a126f1648a04c07e49d37066, type: 2}
   trackedController: {fileID: 0}
   trackingSpace: {fileID: 0}
+  head: {fileID: 0}
   captureButton:
     m_InputSourceMode: 2
     m_InputActionPerformed:
@@ -212,3 +214,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.GestureInkTrail
   neutralColor: {r: 0.4, g: 0.8, b: 1, a: 1}
   fadeDuration: 0.5
+--- !u!114 &-7643345584664130613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7196321979963344852}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286655270205c7f47a7017925d30ee20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.GestureRecorder
+  label: 
+  note: 
+  hand: 0
