@@ -107,6 +107,9 @@ namespace ArcaneMotion.Gestures.Tests
         [TestCase("{\"formatVersion\":1,\"note\":\"\",\"hand\":\"Left\",\"positions\":[],\"times\":[]}", "no label")]
         [TestCase("{\"formatVersion\":1,\"label\":\"Circle\",\"note\":\"\",\"hand\":\"Left\"," +
                   "\"positions\":[{\"x\":0.1,\"y\":1.2,\"z\":0.3}],\"times\":[]}", "1 position but 0 times")]
+        // Without the check, the zero quaternion would replay the gesture facing +z, without an error.
+        [TestCase("{\"formatVersion\":1,\"label\":\"Circle\",\"note\":\"\",\"hand\":\"Left\"," +
+                  "\"recordedAtUtc\":\"2026-10-13T18:45:01.0000000Z\",\"positions\":[],\"times\":[]}", "no head rotation")]
         public void Load_ThrowsOnARecordingThatCannotBeReplayed(string json, string problem)
         {
             string path = WriteFile(json);
