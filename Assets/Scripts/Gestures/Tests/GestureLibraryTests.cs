@@ -124,6 +124,22 @@ namespace ArcaneMotion.Gestures.Tests
                 Assert.That(library.Validate(), Is.Empty);
         }
 
+        [TestCase(0f)]
+        [TestCase(-0.025f)]
+        public void Validate_CutStepNotAboveZero_IsAProblem(float cutStep)
+        {
+            library.CutStep = cutStep;
+            AssertOneProblem("'Test Library'", "cut step");
+        }
+
+        [TestCase(1f)]
+        [TestCase(1.5f)]
+        public void Validate_MaxTotalCutNotBelowOne_IsAProblem(float maxTotalCut)
+        {
+            library.MaxTotalCut = maxTotalCut;
+            AssertOneProblem("'Test Library'", "max total cut");
+        }
+
         [Test]
         public void Validate_KeepMatchScoreBelowMatchScore_IsAProblem()
         {
