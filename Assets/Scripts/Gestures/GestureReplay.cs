@@ -7,7 +7,7 @@ namespace ArcaneMotion.Gestures
     public static class GestureReplay
     {
         // Begins the session with the recording's head rotation, advances it with each sample in
-        // order, and returns it.
+        // order, and returns it. Its state is then the state on show at release.
         public static GestureSession Run(GestureRecording recording, GestureLibrary library)
         {
             if (recording == null)

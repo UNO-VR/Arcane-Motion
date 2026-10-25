@@ -107,6 +107,18 @@ namespace ArcaneMotion.Gestures.Tests
         }
 
         [Test]
+        public void LengthAtTime_InterpolatesBetweenStoredPointsByTime()
+        {
+            GesturePath path = Staircase();
+
+            // Stored points 3 and 4 are at 0.03 and 0.04 s, and at 0.14 and 0.2 m.
+            Assert.That(path.LengthAtTime(0.0325f), Is.EqualTo(0.155f).Within(1e-6f), "A quarter of the way between them");
+            Assert.That(path.LengthAtTime(0.04f), Is.EqualTo(0.2f).Within(1e-6f), "At a stored point");
+            Assert.That(path.LengthAtTime(-0.01f), Is.Zero, "Before the first point");
+            Assert.That(path.LengthAtTime(1f), Is.EqualTo(path.Length), "After the last point");
+        }
+
+        [Test]
         public void Add_PastTheInitialCapacity_KeepsEveryPoint()
         {
             const int count = 1000;

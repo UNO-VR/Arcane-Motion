@@ -149,6 +149,14 @@ namespace ArcaneMotion.Gestures.Tests
             AssertOneProblem("'Test Library'", "max total cut");
         }
 
+        [TestCase(0f)]
+        [TestCase(-20f)]
+        public void Validate_MaxUpdatesPerSecondNotAboveZero_IsAProblem(float maxUpdatesPerSecond)
+        {
+            library.MaxUpdatesPerSecond = maxUpdatesPerSecond;
+            AssertOneProblem("'Test Library'", "max updates per second");
+        }
+
         [Test]
         public void Validate_KeepMatchScoreBelowMatchScore_IsAProblem()
         {

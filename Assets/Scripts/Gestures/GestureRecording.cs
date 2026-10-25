@@ -25,9 +25,11 @@ namespace ArcaneMotion.Gestures
         [SerializeField] private Quaternion headRotation;
         [SerializeField] private Vector3[] positions;
         [SerializeField] private float[] times;
+        [SerializeField] private ShownState shown;
 
+        // shown is the state on show at release.
         public GestureRecording(string label, string note, string hand, DateTime recordedAtUtc,
-            Quaternion headRotation, Vector3[] positions, float[] times)
+            Quaternion headRotation, Vector3[] positions, float[] times, RecognitionState shown)
         {
             if (recordedAtUtc.Kind != DateTimeKind.Utc)
                 throw new ArgumentException("The time must be in UTC.", nameof(recordedAtUtc));
@@ -40,15 +42,18 @@ namespace ArcaneMotion.Gestures
             this.headRotation = headRotation;
             this.positions = positions;
             this.times = times;
+            this.shown = new ShownState(shown);
 
             string problem = FindProblem();
             if (problem != null)
                 throw new ArgumentException($"The recording is not valid: {problem}");
         }
 
-        // For Load, which fills the fields from JSON.
+        // For Load, which fills the fields from JSON. Recordings saved before they held the state on
+        // show have no shown key, so they load with an empty one.
         private GestureRecording()
         {
+            shown = new ShownState();
         }
 
         // The folder that holds recordings, GestureRecordings/ at the project root, outside Assets/
@@ -76,6 +81,9 @@ namespace ArcaneMotion.Gestures
 
         // Each position's seconds since the press.
         public IReadOnlyList<float> Times => times;
+
+        // The state on show at release, which a replay with the same library reproduces.
+        public ShownState Shown => shown;
 
         // Writes the recording to path as JSON, creating its folder. Throws instead of replacing an
         // existing file.
@@ -124,6 +132,45 @@ namespace ArcaneMotion.Gestures
             if (headRotation.Equals(default(Quaternion)))
                 return "it has no head rotation.";
             return null;
+        }
+
+        // A RecognitionState as a recording saves it, with assets by name. Status is empty for a
+        // recording saved before recordings held the state on show.
+        [Serializable]
+        public sealed class ShownState
+        {
+            // Initialized, unlike the recording's fields, so that a missing key loads as empty.
+            [SerializeField] private string status = "";
+            [SerializeField] private string shape = "";
+            [SerializeField] private string spell = "";
+            [SerializeField] private float score;
+            [SerializeField] private float size;
+
+            internal ShownState()
+            {
+            }
+
+            internal ShownState(RecognitionState state)
+            {
+                status = state.Status.ToString();
+                shape = state.Shape != null ? state.Shape.name : "";
+                spell = state.Spell != null ? state.Spell.name : "";
+                score = state.Score;
+                size = state.Size;
+            }
+
+            // The name of the RecognitionStatus.
+            public string Status => status;
+
+            // The shape asset's name, or empty if there was no shape.
+            public string Shape => shape;
+
+            // The spell asset's name, or empty if there was no spell.
+            public string Spell => spell;
+
+            public float Score => score;
+
+            public float Size => size;
         }
     }
 }

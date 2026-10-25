@@ -81,7 +81,7 @@ namespace ArcaneMotion.Gestures
             times.Add(time);
         }
 
-        private void OnCompleted(GestureCapture sender)
+        private void OnCompleted(GestureCapture sender, RecognitionState shown)
         {
             if (!recordingGesture)
                 return;
@@ -93,15 +93,20 @@ namespace ArcaneMotion.Gestures
                 throw new InvalidOperationException($"{nameof(GestureRecorder)} on '{name}' did not save the gesture: {problem}");
 
             var recording = new GestureRecording(label, note, hand.ToString(), pressedAtUtc, headRotation,
-                positions.ToArray(), times.ToArray());
+                positions.ToArray(), times.ToArray(), shown);
             string stamp = pressedAtUtc.ToString("yyyyMMdd'T'HHmmss.fff'Z'", CultureInfo.InvariantCulture);
             string path = Path.Combine(GestureRecording.Folder, label, $"{stamp}-{hand}.json");
             recording.Save(path);
 
             // The capture raises a sample in the frame of the press, so there is always at least one.
             string noteText = note.Length == 0 ? "" : $" ({note})";
+            string spellText = shown.Spell != null ? $" {shown.Spell.name}" : "";
+            string shownText = shown.Shape != null
+                ? $"{shown.Status}{spellText} (shape {shown.Shape.name}, score {shown.Score:F3}, size {shown.Size:F3} m)"
+                : $"{shown.Status} (no shape)";
             Debug.Log($"Recorded {label}{noteText} with the {hand} hand: {times.Count} frames over " +
-                      $"{times[times.Count - 1]:F2} s, {capture.Path.Length:F2} m of path. Saved {path}", this);
+                      $"{times[times.Count - 1]:F2} s, {capture.Path.Length:F2} m of path. Showed {shownText}. " +
+                      $"Saved {path}", this);
         }
 
         // Why the recorder cannot save recordings, or null if it can.

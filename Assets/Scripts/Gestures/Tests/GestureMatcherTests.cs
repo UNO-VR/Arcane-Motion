@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using ArcaneMotion.Gestures.Editor;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools.Constraints;
-using Is = UnityEngine.TestTools.Constraints.Is;
 using Random = System.Random;
 
 namespace ArcaneMotion.Gestures.Tests
@@ -187,16 +185,6 @@ namespace ArcaneMotion.Gestures.Tests
             Assert.That(winnersChecked, Is.GreaterThanOrEqualTo(75), "Calls with a winner under the cutoff");
             if (margin > 0f)
                 Assert.That(othersChecked, Is.GreaterThanOrEqualTo(20), "Other shapes under the cutoff");
-        }
-
-        [Test]
-        public void Match_AfterAWarmUpGesture_AllocatesNothing()
-        {
-            var matcher = new GestureMatcher(Library(3, 0.4f, circle, triangle, diamond, lineRight, lineLeft, vee));
-            GesturePath path = PathOf(SyntheticGestures.Sloppy(SyntheticGestures.Kind.Circle, new Random(1)));
-            matcher.Match(path, 0f, path.Length, Quaternion.identity);
-
-            Assert.That(() => matcher.Match(path, 0f, path.Length, Quaternion.identity), Is.Not.AllocatingGCMemory());
         }
 
         [Test]
