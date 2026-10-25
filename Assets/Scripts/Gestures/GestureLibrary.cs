@@ -9,8 +9,8 @@ namespace ArcaneMotion.Gestures
     [CreateAssetMenu(fileName = "Gesture Library", menuName = "Arcane Motion/Gesture Library")]
     public class GestureLibrary : ScriptableObject
     {
-        [Tooltip("The spells that a gesture can match. Spells that share a shape need size ranges with a gap " +
-                 "between them.")]
+        [Tooltip("The spells that a gesture can match. Spells that share a shape need size ranges that do not " +
+                 "overlap. One range may start where another ends.")]
         [SerializeField] private List<SpellGesture> spells = new List<SpellGesture>();
 
         [Tooltip("Distance in meters the controller must move from the last stored point before a sample is " +
@@ -133,12 +133,14 @@ namespace ArcaneMotion.Gestures
                 for (int j = 0; j < i; j++)
                 {
                     SpellGesture other = spells[j];
-                    // Ranges that only touch overlap too, because a size at the shared end would fit both.
+                    // A range includes its min size but not its max size, so ranges that only touch do not
+                    // overlap: a size at the shared end fits only the range that starts there.
                     if (other != null && spell.Shape != null && other.Shape == spell.Shape &&
-                        spell.MinSize <= other.MaxSize && other.MinSize <= spell.MaxSize)
+                        spell.MinSize < other.MaxSize && other.MinSize < spell.MaxSize)
                         problems.Add($"Spells '{other.name}' and '{spell.name}' share shape '{spell.Shape.name}', " +
                                      $"but their size ranges, {other.MinSize} to {other.MaxSize} m and " +
-                                     $"{spell.MinSize} to {spell.MaxSize} m, overlap. Leave a gap between them.");
+                                     $"{spell.MinSize} to {spell.MaxSize} m, overlap. One may start where the " +
+                                     "other ends.");
                 }
             }
 

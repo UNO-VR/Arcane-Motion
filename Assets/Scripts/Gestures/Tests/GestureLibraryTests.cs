@@ -74,15 +74,24 @@ namespace ArcaneMotion.Gestures.Tests
             AssertOneProblem("'Small Triangle'");
         }
 
-        // The small triangle's range is 0.05 to 0.1 m: touching it at 0.1, overlapping it, and
-        // containing it.
-        [TestCase(0.1f)]
+        // The small triangle's range is 0.05 to 0.1 m: overlapping it, and containing it.
         [TestCase(0.08f)]
         [TestCase(0.01f)]
         public void Validate_OverlappingSizeRangesOnOneShape_AreAProblem(float largeMinSize)
         {
             largeTriangle.MinSize = largeMinSize;
             AssertOneProblem("'Small Triangle'", "'Large Triangle'", "'Triangle'");
+        }
+
+        // A range includes its min size but not its max size, so the large triangle may start where the
+        // small triangle's 0.05 to 0.1 m range ends, or end where it starts.
+        [TestCase(0.1f, 0.3f)]
+        [TestCase(0.01f, 0.05f)]
+        public void Validate_TouchingSizeRangesOnOneShape_AreNotAProblem(float largeMinSize, float largeMaxSize)
+        {
+            largeTriangle.MinSize = largeMinSize;
+            largeTriangle.MaxSize = largeMaxSize;
+            Assert.That(library.Validate(), Is.Empty);
         }
 
         // Two spells use the triangle, and its problem is reported once.
