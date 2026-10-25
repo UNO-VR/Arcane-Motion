@@ -4,8 +4,8 @@ using UnityEngine;
 namespace ArcaneMotion.Gestures
 {
     // The spells and settings that affect a recognition result, in one asset that both hands share.
-    // A session copies what it uses when it is created, so in Play Mode an edit applies when a
-    // GestureCapture is next enabled.
+    // A session and a matcher copy what they use when they are created, so in Play Mode an edit
+    // applies when a GestureCapture is next enabled.
     [CreateAssetMenu(fileName = "Gesture Library", menuName = "Arcane Motion/Gesture Library")]
     public class GestureLibrary : ScriptableObject
     {
