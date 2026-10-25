@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2fb9476bb966704088ed5d247439a90, type: 3}
+  m_Name: PH Large Circle
+  m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.SpellGesture
+  shape: {fileID: 11400000, guid: 0eb1091e46677c24bac752be33d32c3e, type: 2}
+  minSize: 0.13
+  maxSize: 0.4
+  inkColor: {r: 0.6585526, g: 0.023495764, b: 0.8301887, a: 1}

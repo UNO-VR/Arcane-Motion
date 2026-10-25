@@ -12,4 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76fac0d8cde7161499ed525328233133, type: 3}
   m_Name: Gesture Library
   m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.GestureLibrary
+  spells:
+  - {fileID: 11400000, guid: 0563c1df7863dfd4b95ed05baecbad23, type: 2}
+  - {fileID: 11400000, guid: 9a6c8f76759ed934e9abc5d709db78c7, type: 2}
+  - {fileID: 11400000, guid: 810ec36cbddcbb941abfff4eb9fbb120, type: 2}
+  - {fileID: 11400000, guid: 908013c66321d3147b8ec31e4a86f844, type: 2}
+  - {fileID: 11400000, guid: 6d7348493f648d64c9fac096128453a3, type: 2}
+  - {fileID: 11400000, guid: 6f2de60e7631eb44c9be23ee00b0c75a, type: 2}
   minPointSpacing: 0.005
+  pointCount: 64
+  cutStep: 0.025
+  maxTotalCut: 0.4
+  cutPenalty: 0.2
+  startShifts: 3
+  matchScore: 0.25
+  keepMatchScore: 0.25
+  minMargin: 0

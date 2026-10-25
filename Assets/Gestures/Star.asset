@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70172aa37099271419281cbdca73c4d6, type: 3}
+  m_Name: Star
+  m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.GestureShape
+  points:
+  - {x: -0.08816778, y: -0.12135255, z: 0}
+  - {x: 0.14265849, y: 0.04635255, z: 0}
+  - {x: -0.14265847, y: 0.046352558, z: 0}
+  - {x: 0.088167764, y: -0.121352576, z: 0}
+  - {x: 0.00000002086064, y: 0.15, z: 0}
+  closed: 1
+  bothDirections: 0
