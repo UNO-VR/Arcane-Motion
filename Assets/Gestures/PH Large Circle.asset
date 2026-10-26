@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: PH Large Circle
   m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.SpellGesture
   shape: {fileID: 11400000, guid: 0eb1091e46677c24bac752be33d32c3e, type: 2}
-  minSize: 0.13
-  maxSize: 0.4
+  minSize: 0.1
+  maxSize: 0.6
   inkColor: {r: 0.6585526, g: 0.023495764, b: 0.8301887, a: 1}

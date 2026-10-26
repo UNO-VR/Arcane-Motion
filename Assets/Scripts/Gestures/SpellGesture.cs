@@ -16,8 +16,9 @@ namespace ArcaneMotion.Gestures
                  "0.58 times its side.")]
         [SerializeField, Min(0f)] private float minSize;
 
-        [Tooltip("The largest accepted size in meters, measured as for Min Size. Spells that share a shape must " +
-                 "leave a clear gap between their size ranges.")]
+        [Tooltip("The size in meters, measured as for Min Size, where the accepted range ends. The range includes " +
+                 "Min Size but not Max Size, so a spell that shares this shape may start its range here. Ranges " +
+                 "on one shape must not overlap.")]
         [SerializeField, Min(0f)] private float maxSize;
 
         [Tooltip("The ink trail's color while this spell is the match.")]
