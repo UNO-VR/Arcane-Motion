@@ -10637,6 +10637,28 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7917674758326848202, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
   m_PrefabInstance: {fileID: 1373153106}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1373153108 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6283329559392337895, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
+  m_PrefabInstance: {fileID: 1373153106}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b734f2bd29eeddd4d85afb0c266228c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1373153109 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4553217226038635835, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
+  m_PrefabInstance: {fileID: 1373153106}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b734f2bd29eeddd4d85afb0c266228c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1390846723
 GameObject:
   m_ObjectHideFlags: 0
@@ -11382,6 +11404,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2929015765814331035, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
+      propertyPath: hapticPlayer
+      value: 
+      objectReference: {fileID: 1373153108}
     - target: {fileID: 7196321979963344852, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
       propertyPath: m_Name
       value: Gesture Hand Right
@@ -13315,6 +13341,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2929015765814331035, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
+      propertyPath: hapticPlayer
+      value: 
+      objectReference: {fileID: 1373153109}
     - target: {fileID: 7196321979963344852, guid: 4b09e553bf0bc11449f56ae5f08054b8, type: 3}
       propertyPath: m_Name
       value: Gesture Hand Left
