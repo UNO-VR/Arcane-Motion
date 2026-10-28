@@ -72,6 +72,20 @@ namespace ArcaneMotion.Gestures.Tests
             Assert.That(ScoreOf(matcher, circle), Is.EqualTo(0.223f).Within(CheckTolerance));
         }
 
+        // The same tilted circle, against a circle that ignores depth: what is left of the tilt is an
+        // oval 0.94 times as high as it is wide. A numpy port of the matcher gave 0.031.
+        [Test]
+        public void CircleTilted20Degrees_AgainstACircleIgnoringDepth_NoCut()
+        {
+            circle.IgnoredAxis = IgnoredAxis.Z;
+            GestureMatcher matcher = CheckMatcher(0, 0f, circle);
+            Quaternion tilt = Quaternion.AngleAxis(20f, Vector3.right);
+
+            MatchAll(matcher, SyntheticGestures.Sample(u => tilt * SyntheticGestures.CirclePoint(u), 0, 1, 401));
+
+            Assert.That(ScoreOf(matcher, circle), Is.EqualTo(0.031f).Within(CheckTolerance));
+        }
+
         // One full loop, from 10 degrees after the set start back to there.
         [TestCase(0, 0f, 0.174f)]
         [TestCase(3, 0.4f, 0.025f)]
@@ -138,10 +152,20 @@ namespace ArcaneMotion.Gestures.Tests
 
         // The shortcuts must change no decision. Each gesture is matched as the session will match it
         // live, on a path that grows, so that later calls start from the last call's winner and cut.
-        [TestCase(0f)]
-        [TestCase(0.1f)]
-        public void SloppyGestures_AgreeWithTheBruteForceReference(float margin)
+        // With mixed axes, the closed shapes ignore depth and the open ones do not, so each cut is
+        // normalized twice.
+        [TestCase(0f, false)]
+        [TestCase(0.1f, false)]
+        [TestCase(0f, true)]
+        [TestCase(0.1f, true)]
+        public void SloppyGestures_AgreeWithTheBruteForceReference(float margin, bool mixedAxes)
         {
+            if (mixedAxes)
+            {
+                circle.IgnoredAxis = IgnoredAxis.Z;
+                triangle.IgnoredAxis = IgnoredAxis.Z;
+                diamond.IgnoredAxis = IgnoredAxis.Z;
+            }
             GestureLibrary library = Library(3, 0.4f, circle, triangle, diamond, lineRight, lineLeft, vee);
             // A keep-match score above the match score, because the cutoff must use the larger. 0.4 is
             // the threshold plus margin that the check of the matcher's cost assumed.

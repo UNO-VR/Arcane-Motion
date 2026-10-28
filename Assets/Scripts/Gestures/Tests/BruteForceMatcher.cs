@@ -25,6 +25,7 @@ namespace ArcaneMotion.Gestures.Tests
             for (int s = 0; s < matches.Length; s++)
                 matches[s].Score = float.PositiveInfinity;
 
+            var resampled = new Vector3[pointCount];
             var points = new Vector3[pointCount];
             float evaluatedLength = toLength - fromLength;
             // The matcher's cut order, so that a tie goes to the same cut.
@@ -34,13 +35,16 @@ namespace ArcaneMotion.Gestures.Tests
                 {
                     float startCut = start * library.CutStep;
                     float endCut = (total - start) * library.CutStep;
-                    path.Resample(fromLength + startCut * evaluatedLength, toLength - endCut * evaluatedLength, points);
-                    if (!GestureNormalization.Normalize(points, rotation, out float size))
-                        continue;
-
+                    path.Resample(fromLength + startCut * evaluatedLength, toLength - endCut * evaluatedLength, resampled);
                     float penalty = library.CutPenalty * total * library.CutStep;
                     for (int s = 0; s < matches.Length; s++)
                     {
+                        // In the gesture frame, without the shape's ignored axis.
+                        for (int k = 0; k < pointCount; k++)
+                            points[k] = GestureNormalization.Flatten(rotation * resampled[k], templates.IgnoredAxes[s]);
+                        if (!GestureNormalization.Normalize(points, Quaternion.identity, out float size))
+                            continue;
+
                         for (int v = templates.VariantStarts[s]; v < templates.VariantStarts[s + 1]; v++)
                         {
                             float sum = 0f;

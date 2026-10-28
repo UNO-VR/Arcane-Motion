@@ -1,13 +1,16 @@
+using System;
+using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEngine;
 
 namespace ArcaneMotion.Gestures
 {
     // Scores the evaluated part of a gesture's path against every shape that a library's spells
-    // use. For each start and end cut of the evaluated part, it resamples and normalizes the rest
-    // once, and compares it with every variant of every shape: the score is the mean distance
-    // between corresponding points, plus the cut penalty times the fraction cut. A shape's score is
-    // its best over every cut and variant.
+    // use. For each start and end cut of the evaluated part, it resamples the rest and turns it into
+    // the gesture frame once. It normalizes that once for each ignored axis that a shape uses, after
+    // dropping the axis, and compares it with every variant of every shape that ignores that axis:
+    // the score is the mean distance between corresponding points, plus the cut penalty times the
+    // fraction cut. A shape's score is its best over every cut and variant.
     //
     // Its shortcuts change no decision. It abandons a comparison once the distances so far cannot
     // beat the shape's best or the cutoff (see MatchResult), and stops trying cuts once their
@@ -26,7 +29,14 @@ namespace ArcaneMotion.Gestures
         private readonly float[] startCuts;
         private readonly float[] endCuts;
         private readonly float[] penalties;
-        private readonly Vector3[] gesture;
+        // The current cut's resampled points, turned into the gesture frame.
+        private readonly Vector3[] turned;
+        // Indexed by IgnoredAxis: the current cut's points without that axis, normalized, with their size
+        // and whether they have a shape. The points are null for an axis that no shape ignores.
+        private readonly Vector3[][] gestures;
+        private readonly float[] sizes;
+        private readonly bool[] hasShape;
+        private readonly IgnoredAxis[] axesInUse;
 
         // Compiles the library's templates and copies its settings, so later edits to the library
         // do not change this matcher. Throws, listing every problem, if the library has any.
@@ -55,7 +65,20 @@ namespace ArcaneMotion.Gestures
                 }
             }
 
-            gesture = new Vector3[pointCount];
+            turned = new Vector3[pointCount];
+            int axisCount = Enum.GetValues(typeof(IgnoredAxis)).Length;
+            gestures = new Vector3[axisCount][];
+            sizes = new float[axisCount];
+            hasShape = new bool[axisCount];
+            var inUse = new List<IgnoredAxis>();
+            foreach (IgnoredAxis axis in Templates.IgnoredAxes)
+            {
+                if (inUse.Contains(axis))
+                    continue;
+                inUse.Add(axis);
+                gestures[(int)axis] = new Vector3[pointCount];
+            }
+            axesInUse = inUse.ToArray();
             Result = new MatchResult(Templates.Shapes.Length);
         }
 
@@ -84,6 +107,7 @@ namespace ArcaneMotion.Gestures
 
                 int shapeCount = result.ShapeCount;
                 int[] variantStarts = Templates.VariantStarts;
+                IgnoredAxis[] shapeAxes = Templates.IgnoredAxes;
                 Vector3[] points = Templates.Points;
                 float evaluatedLength = toLength - fromLength;
                 float bestOverall = float.PositiveInfinity;
@@ -111,15 +135,30 @@ namespace ArcaneMotion.Gestures
                     }
 
                     path.Resample(fromLength + startCuts[cut] * evaluatedLength,
-                        toLength - endCuts[cut] * evaluatedLength, gesture);
-                    // Points all within 1e-6 m of their center have no shape for any template to match.
-                    if (!GestureNormalization.Normalize(gesture, rotation, out float size))
-                        continue;
+                        toLength - endCuts[cut] * evaluatedLength, turned);
+                    for (int k = 0; k < pointCount; k++)
+                        turned[k] = rotation * turned[k];
+                    // Dropping an axis moves the centroid and changes the size, so each axis normalizes
+                    // its own copy.
+                    foreach (IgnoredAxis axis in axesInUse)
+                    {
+                        Vector3[] flat = gestures[(int)axis];
+                        for (int k = 0; k < pointCount; k++)
+                            flat[k] = GestureNormalization.Flatten(turned[k], axis);
+                        hasShape[(int)axis] = GestureNormalization.Normalize(flat, Quaternion.identity, out sizes[(int)axis]);
+                    }
 
                     for (int order = 0; order < shapeCount; order++)
                     {
                         // The last winner first, then the rest in order.
                         int shape = order == 0 ? firstShape : order <= firstShape ? order - 1 : order;
+                        // Points all within 1e-6 m of their center have no shape for this shape's
+                        // templates to match.
+                        int axisIndex = (int)shapeAxes[shape];
+                        if (!hasShape[axisIndex])
+                            continue;
+                        Vector3[] gesture = gestures[axisIndex];
+                        float size = sizes[axisIndex];
                         for (int variant = variantStarts[shape]; variant < variantStarts[shape + 1]; variant++)
                         {
                             // Distances adding up to this mean a score that changes nothing.

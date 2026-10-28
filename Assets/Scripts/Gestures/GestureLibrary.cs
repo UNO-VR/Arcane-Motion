@@ -194,11 +194,19 @@ namespace ArcaneMotion.Gestures
                     continue;
                 }
 
-                float length = shape.Closed ? Vector3.Distance(points[count - 1], points[0]) : 0f;
+                // Measured as matching sees the shape, without its ignored axis.
+                IgnoredAxis axis = shape.IgnoredAxis;
+                float length = shape.Closed
+                    ? Vector3.Distance(GestureNormalization.Flatten(points[count - 1], axis),
+                        GestureNormalization.Flatten(points[0], axis))
+                    : 0f;
                 for (int k = 1; k < count; k++)
-                    length += Vector3.Distance(points[k - 1], points[k]);
+                    length += Vector3.Distance(GestureNormalization.Flatten(points[k - 1], axis),
+                        GestureNormalization.Flatten(points[k], axis));
                 if (!(length > 0f))
-                    problems.Add($"Shape '{shape.name}' has no length.");
+                    problems.Add(axis == IgnoredAxis.None
+                        ? $"Shape '{shape.name}' has no length."
+                        : $"Shape '{shape.name}' has no length without its ignored axis, {axis}.");
             }
 
             // 2K + 1 shifts of a closed shape must fit in its N - 1 loop points without repeating one.

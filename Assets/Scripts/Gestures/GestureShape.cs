@@ -20,6 +20,12 @@ namespace ArcaneMotion.Gestures
                  "from its other end.")]
         [SerializeField] private bool bothDirections;
 
+        [Tooltip("An axis of the gesture frame that matching drops from the gesture and the template, for a shape " +
+                 "drawn flat in the plane of the other two: Z (depth) for a shape drawn facing the player. Tilting " +
+                 "out of that plane, and a line's bow away from the player, then cost nothing, and the size is " +
+                 "measured without the axis. Motion along the axis is invisible to this shape.")]
+        [SerializeField] private IgnoredAxis ignoredAxis;
+
         public Vector3[] Points
         {
             get => points;
@@ -37,5 +43,20 @@ namespace ArcaneMotion.Gestures
             get => bothDirections;
             set => bothDirections = value;
         }
+
+        public IgnoredAxis IgnoredAxis
+        {
+            get => ignoredAxis;
+            set => ignoredAxis = value;
+        }
+    }
+
+    // An axis of the gesture frame: x is the player's right, y is up, and z points away from the player.
+    public enum IgnoredAxis
+    {
+        None,
+        X,
+        Y,
+        Z,
     }
 }

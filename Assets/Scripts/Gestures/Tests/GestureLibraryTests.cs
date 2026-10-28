@@ -117,6 +117,20 @@ namespace ArcaneMotion.Gestures.Tests
             AssertOneProblem($"'{shape.name}'");
         }
 
+        // A line drawn straight away from the player has length, but none once depth is dropped.
+        // Dropping x instead leaves all of its length.
+        [TestCase(IgnoredAxis.Z, true)]
+        [TestCase(IgnoredAxis.X, false)]
+        public void Validate_ShapeWithNoLengthWithoutItsIgnoredAxis_IsAProblem(IgnoredAxis lineAxis, bool isProblem)
+        {
+            line.Points = new[] { new Vector3(0.1f, 1.2f, 0.3f), new Vector3(0.1f, 1.2f, 0.6f) };
+            line.IgnoredAxis = lineAxis;
+            if (isProblem)
+                AssertOneProblem("'Line'", "ignored axis");
+            else
+                Assert.That(library.Validate(), Is.Empty);
+        }
+
         // A closed shape has N - 1 loop points, and 2K + 1 shifts fit in them only while K is below
         // (N - 1) / 2.
         [TestCase(9, 3, false)]

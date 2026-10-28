@@ -7,8 +7,9 @@ namespace ArcaneMotion.Gestures
     // The templates that gestures are compared against, compiled once from a library for each
     // distinct shape that its spells use. A shape has a variant for each way of drawing it that the
     // matcher accepts: each direction and, for a closed shape, each start point near the set start.
-    // A variant is N points evenly spaced along the stroke, normalized. Every variant is in one flat
-    // array, so that matching reads them without allocating.
+    // A variant is N points evenly spaced along the stroke, without the shape's ignored axis, and
+    // normalized. Every variant is in one flat array, so that matching reads them without
+    // allocating.
     public sealed class GestureTemplates
     {
         // Throws, listing every problem, if the library has any.
@@ -55,6 +56,7 @@ namespace ArcaneMotion.Gestures
             VariantStarts[shapes.Count] = points.Count / PointCount;
 
             Shapes = shapes.ToArray();
+            IgnoredAxes = shapes.ConvertAll(shape => shape.IgnoredAxis).ToArray();
             Points = points.ToArray();
         }
 
@@ -64,13 +66,17 @@ namespace ArcaneMotion.Gestures
         // The distinct shapes that the library's spells use, in the order of their first spell.
         public GestureShape[] Shapes { get; }
 
+        // Each shape's ignored axis, in the order of Shapes, as it was when the templates were compiled.
+        public IgnoredAxis[] IgnoredAxes { get; }
+
         // Shape s's variants are VariantStarts[s] up to, but not including, VariantStarts[s + 1],
         // likeliest first: the set start, then start points shifted from nearest to farthest. At each
         // shift, the set direction comes before the reverse, and a later start before an earlier one.
         public int[] VariantStarts { get; }
 
-        // Every variant's points, normalized with no rotation. Variant v's points are
-        // Points[v * PointCount] up to, but not including, Points[(v + 1) * PointCount].
+        // Every variant's points, without its shape's ignored axis, normalized with no rotation.
+        // Variant v's points are Points[v * PointCount] up to, but not including,
+        // Points[(v + 1) * PointCount].
         public Vector3[] Points { get; }
 
         // Resamples the shape's stroke to destination.Length points, with the closing segment if the
@@ -111,11 +117,15 @@ namespace ArcaneMotion.Gestures
         {
             int loopCount = resampled.Length - 1;
             for (int i = 0; i < variant.Length; i++)
+            {
                 // Validate keeps the shift above -loopCount / 2, so the index stays positive.
-                variant[i] = shape.Closed ? resampled[(shift + i + loopCount) % loopCount] : resampled[i];
+                Vector3 point = shape.Closed ? resampled[(shift + i + loopCount) % loopCount] : resampled[i];
+                variant[i] = GestureNormalization.Flatten(point, shape.IgnoredAxis);
+            }
             if (!GestureNormalization.Normalize(variant, Quaternion.identity, out _))
                 throw new InvalidOperationException(
-                    $"Shape '{shape.name}' is too small to compare: its resampled points are all within 1e-6 m of their center.");
+                    $"Shape '{shape.name}' is too small to compare: its resampled points, without its ignored " +
+                    "axis, are all within 1e-6 m of their center.");
             points.AddRange(variant);
         }
     }
