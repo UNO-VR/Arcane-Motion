@@ -227,8 +227,10 @@ namespace ArcaneMotion.Gestures
                 if (ends[k] <= previousEnd && !(k == regionCount - 1 && keyCount == 0))
                     continue;
                 // In Fixed mode, a key's color covers the times after the previous key, up to and
-                // including its own time.
-                float time = lineLength > 0f ? ends[k] / lineLength : 1f;
+                // including its own time. Unity rounds key times to the nearest 1/65535, so each key
+                // goes one step past its boundary, or rounding down would give the boundary's vertex
+                // the next region's color.
+                float time = lineLength > 0f ? Mathf.Min(ends[k] / lineLength + 1f / 65535f, 1f) : 1f;
                 colorKeys[keyCount] = new GradientColorKey(colors[k], time);
                 alphaKeys[keyCount] = new GradientAlphaKey(colors[k].a * opacity, time);
                 keyCount++;

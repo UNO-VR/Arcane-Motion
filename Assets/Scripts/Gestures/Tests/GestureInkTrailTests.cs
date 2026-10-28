@@ -53,14 +53,16 @@ namespace ArcaneMotion.Gestures.Tests
         }
 
         // The boundaries at 0.125 and 0.875 are inside segments, so each gets a vertex; the one at 0.5
-        // is on a stored point. Vertices on boundaries are not checked: the segment on one side of each
-        // blends the two colors.
+        // is on a stored point. A vertex on a boundary takes the earlier region's color. The boundary
+        // at 0.125 is 5461.25 steps of 1/65535 along the 1.5 m line, so a key placed on it would round
+        // to before its vertex.
         [Test]
         public void LitShapeColorsMatchedPartDimsCutsAndLeavesTheRestNeutral()
         {
             AssertInk(StraightPath(), new Vector3(1.5f, 0f, 0f), Lit(0.125f, 0.5f, 0.875f), 1f,
                 new[] { 0f, 0.125f, 0.25f, 0.5f, 0.75f, 0.875f, 1f, 1.5f },
-                (0, Dimmed), (2, Matched), (4, Dimmed), (6, Neutral), (7, Neutral));
+                (0, Dimmed), (1, Dimmed), (2, Matched), (3, Matched), (4, Dimmed), (5, Dimmed), (6, Neutral),
+                (7, Neutral));
         }
 
         // With no end cut, the matched part ends where the evaluated part does, and that boundary gets
@@ -70,7 +72,7 @@ namespace ArcaneMotion.Gestures.Tests
         {
             AssertInk(StraightPath(), null, Lit(0.125f, 0.625f, 0.625f), 1f,
                 new[] { 0f, 0.125f, 0.25f, 0.5f, 0.625f, 0.75f, 1f },
-                (0, Dimmed), (2, Matched), (3, Matched), (5, Neutral), (6, Neutral));
+                (0, Dimmed), (1, Dimmed), (2, Matched), (3, Matched), (4, Matched), (5, Neutral), (6, Neutral));
         }
 
         [Test]
