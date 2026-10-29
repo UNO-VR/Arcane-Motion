@@ -271,3 +271,4 @@ MonoBehaviour:
   - {x: 0.004417459, y: -0.1799458, z: 0}
   closed: 1
   bothDirections: 0
+  ignoredAxis: 3
