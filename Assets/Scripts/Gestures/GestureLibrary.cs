@@ -184,6 +184,11 @@ namespace ArcaneMotion.Gestures
 
             foreach (GestureShape shape in shapes)
             {
+                // At zero the shape could never light, with no error.
+                if (!(shape.MatchScoreScale > 0f))
+                    problems.Add($"Shape '{shape.name}' has a match score scale of {shape.MatchScoreScale}, which " +
+                                 "must be above zero.");
+
                 Vector3[] points = shape.Points;
                 int count = points?.Length ?? 0;
                 int needed = shape.Closed ? 3 : 2;

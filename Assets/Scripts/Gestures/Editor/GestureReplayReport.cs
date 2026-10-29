@@ -177,8 +177,9 @@ namespace ArcaneMotion.Gestures.Editor
                 if (expected != null)
                 {
                     List<float> scores = takes.Select(row => row.LabelScore).ToList();
-                    summary.AppendLine($"  Score against {expected.name}: median {Number(Median(scores))}, " +
-                                       $"worst {Number(scores.Max())}.");
+                    summary.AppendLine($"  Score against {expected.name}, which lights below " +
+                                       $"{Number(library.MatchScore * expected.MatchScoreScale)}: median " +
+                                       $"{Number(Median(scores))}, worst {Number(scores.Max())}.");
                     Row closest = takes.OrderBy(row => row.Margin).First();
                     summary.AppendLine($"  Margin over the next shape: smallest {Number(closest.Margin)} " +
                                        $"({(closest.Other != null ? closest.Other.name : "none")}), median " +

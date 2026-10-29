@@ -152,19 +152,24 @@ namespace ArcaneMotion.Gestures.Tests
 
         // The shortcuts must change no decision. Each gesture is matched as the session will match it
         // live, on a path that grows, so that later calls start from the last call's winner and cut.
-        // With mixed axes, the closed shapes ignore depth and the open ones do not, so each cut is
-        // normalized twice.
+        // With mixed shape settings, the closed shapes ignore depth and the open ones do not, so each
+        // cut is normalized twice, and the shapes' match score scales differ, so the cutoff uses the
+        // largest.
         [TestCase(0f, false)]
         [TestCase(0.1f, false)]
         [TestCase(0f, true)]
         [TestCase(0.1f, true)]
-        public void SloppyGestures_AgreeWithTheBruteForceReference(float margin, bool mixedAxes)
+        public void SloppyGestures_AgreeWithTheBruteForceReference(float margin, bool mixedShapeSettings)
         {
-            if (mixedAxes)
+            float largestScale = 1f;
+            if (mixedShapeSettings)
             {
                 circle.IgnoredAxis = IgnoredAxis.Z;
                 triangle.IgnoredAxis = IgnoredAxis.Z;
                 diamond.IgnoredAxis = IgnoredAxis.Z;
+                circle.MatchScoreScale = 0.6f;
+                triangle.MatchScoreScale = 1.4f;
+                largestScale = 1.4f;
             }
             GestureLibrary library = Library(3, 0.4f, circle, triangle, diamond, lineRight, lineLeft, vee);
             // A keep-match score above the match score, because the cutoff must use the larger. 0.4 is
@@ -198,7 +203,7 @@ namespace ArcaneMotion.Gestures.Tests
                         BruteForceMatcher.Match(library, matcher.Templates, path, from, to, rotation);
 
                     (bool winnerChecked, int others) = AssertAgrees(matcher.Result, reference,
-                        library.KeepMatchScore, margin, $"{kind} gesture {g}, {part * 100}% drawn");
+                        library.KeepMatchScore * largestScale, margin, $"{kind} gesture {g}, {part * 100}% drawn");
                     winnersChecked += winnerChecked ? 1 : 0;
                     othersChecked += others;
                 }

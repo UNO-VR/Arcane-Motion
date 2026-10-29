@@ -57,6 +57,7 @@ namespace ArcaneMotion.Gestures
 
             Shapes = shapes.ToArray();
             IgnoredAxes = shapes.ConvertAll(shape => shape.IgnoredAxis).ToArray();
+            MatchScoreScales = shapes.ConvertAll(shape => shape.MatchScoreScale).ToArray();
             Points = points.ToArray();
         }
 
@@ -68,6 +69,10 @@ namespace ArcaneMotion.Gestures
 
         // Each shape's ignored axis, in the order of Shapes, as it was when the templates were compiled.
         public IgnoredAxis[] IgnoredAxes { get; }
+
+        // Each shape's match score scale, in the order of Shapes, as it was when the templates were
+        // compiled, so that the matcher and the recognizer use the same values.
+        public float[] MatchScoreScales { get; }
 
         // Shape s's variants are VariantStarts[s] up to, but not including, VariantStarts[s + 1],
         // likeliest first: the set start, then start points shifted from nearest to farthest. At each

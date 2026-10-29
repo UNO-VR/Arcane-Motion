@@ -26,6 +26,11 @@ namespace ArcaneMotion.Gestures
                  "measured without the axis. Motion along the axis is invisible to this shape.")]
         [SerializeField] private IgnoredAxis ignoredAxis;
 
+        [Tooltip("Multiplies the library's match and keep-match scores for this shape. Below 1 makes this shape " +
+                 "stricter, and above 1 easier. A shape lights only while it is also the best-scoring shape. Must " +
+                 "be above zero.")]
+        [SerializeField, Min(0f)] private float matchScoreScale = 1f;
+
         public Vector3[] Points
         {
             get => points;
@@ -48,6 +53,12 @@ namespace ArcaneMotion.Gestures
         {
             get => ignoredAxis;
             set => ignoredAxis = value;
+        }
+
+        public float MatchScoreScale
+        {
+            get => matchScoreScale;
+            set => matchScoreScale = value;
         }
     }
 

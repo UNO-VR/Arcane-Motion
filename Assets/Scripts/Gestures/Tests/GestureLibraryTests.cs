@@ -117,6 +117,14 @@ namespace ArcaneMotion.Gestures.Tests
             AssertOneProblem($"'{shape.name}'");
         }
 
+        [TestCase(0f)]
+        [TestCase(-0.5f)]
+        public void Validate_MatchScoreScaleNotAboveZero_IsAProblem(float scale)
+        {
+            triangle.MatchScoreScale = scale;
+            AssertOneProblem("'Triangle'", "match score scale");
+        }
+
         // A line drawn straight away from the player has length, but none once depth is dropped.
         // Dropping x instead leaves all of its length.
         [TestCase(IgnoredAxis.Z, true)]

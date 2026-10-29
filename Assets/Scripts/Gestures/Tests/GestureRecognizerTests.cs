@@ -122,6 +122,71 @@ namespace ArcaneMotion.Gestures.Tests
             Assert.That(state.Status, Is.EqualTo(RecognitionStatus.None), "The circle, after a reset");
         }
 
+        // A clean circle scores 0.116 against the diamond. At the match score of 0.25, the diamond's scale
+        // of 0.4 lights it only below 0.1, and 0.5 below 0.125. With the diamond the only shape, its
+        // scale also sets the matcher's cutoff, so at 0.4 the state carries no shape.
+        [TestCase(0.4f, RecognitionStatus.None)]
+        [TestCase(0.5f, RecognitionStatus.Spell)]
+        public void MatchScoreScale_SetsWhereThatShapeLights(float diamondScale, RecognitionStatus expected)
+        {
+            diamond.MatchScoreScale = diamondScale;
+            GestureLibrary library = CheckLibrary(0f, assets.Spell("Diamond Spell", diamond, 0.001f, 10f));
+            library.MatchScore = 0.25f;
+            library.KeepMatchScore = 0.25f;
+            var matcher = new GestureMatcher(library);
+            var recognizer = new GestureRecognizer(library, matcher.Templates);
+
+            RecognitionState state = Recognize(matcher, recognizer, CirclePath(0.15f));
+
+            Assert.That(state.Status, Is.EqualTo(expected));
+            if (expected == RecognitionStatus.Spell)
+            {
+                Assert.That(state.Shape, Is.SameAs(diamond));
+                Assert.That(state.Score, Is.EqualTo(0.116f).Within(0.005f), "The circle's score against the diamond");
+            }
+        }
+
+        // A clean diamond lights the diamond. The clean circle, at 0.116, then keeps it lit only below the
+        // keep-match score of 0.3 times the scale: 0.15 at a scale of 0.5, but 0.09 at 0.3.
+        [TestCase(0.5f, RecognitionStatus.Spell)]
+        [TestCase(0.3f, RecognitionStatus.None)]
+        public void MatchScoreScale_ScalesTheKeepMatchScoreToo(float diamondScale, RecognitionStatus circleWhileLit)
+        {
+            diamond.MatchScoreScale = diamondScale;
+            GestureLibrary library = CheckLibrary(0f, assets.Spell("Diamond Spell", diamond, 0.001f, 10f));
+            library.MatchScore = 0.1f;
+            library.KeepMatchScore = 0.3f;
+            var matcher = new GestureMatcher(library);
+            var recognizer = new GestureRecognizer(library, matcher.Templates);
+
+            RecognitionState state = Recognize(matcher, recognizer, DiamondPath());
+            Assert.That(state.Status, Is.EqualTo(RecognitionStatus.Spell), "The diamond");
+            state = Recognize(matcher, recognizer, CirclePath(0.15f));
+            Assert.That(state.Status, Is.EqualTo(circleWhileLit), "The circle, while the diamond is lit");
+        }
+
+        // A clean circle scores 0.116 against the diamond and 0.252 against the triangle. The diamond is
+        // the best shape, but its scale lights it only below 0.1. The triangle's scale would light it
+        // below 0.5, but it is not the best shape, so nothing lights.
+        [Test]
+        public void LooserRunnerUp_DoesNotLightInPlaceOfAStricterBestShape()
+        {
+            GestureShape triangle = assets.Shape("Triangle", true, false, SyntheticGestures.Corners(3));
+            diamond.MatchScoreScale = 0.4f;
+            triangle.MatchScoreScale = 2f;
+            GestureLibrary library = CheckLibrary(0f,
+                assets.Spell("Diamond Spell", diamond, 0.001f, 10f), assets.Spell("Triangle Spell", triangle, 0.001f, 10f));
+            library.MatchScore = 0.25f;
+            library.KeepMatchScore = 0.25f;
+            var matcher = new GestureMatcher(library);
+            var recognizer = new GestureRecognizer(library, matcher.Templates);
+
+            RecognitionState state = Recognize(matcher, recognizer, CirclePath(0.15f));
+
+            Assert.That(state.Status, Is.EqualTo(RecognitionStatus.None));
+            Assert.That(state.Shape, Is.SameAs(diamond));
+        }
+
         // A clean circle scores about 0 against the circle and 0.116 against the diamond.
         [TestCase(0.1f, RecognitionStatus.Spell)]
         [TestCase(0.13f, RecognitionStatus.None)]

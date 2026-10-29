@@ -44,7 +44,11 @@ namespace ArcaneMotion.Gestures
         {
             Templates = new GestureTemplates(library);
             pointCount = Templates.PointCount;
-            threshold = Mathf.Max(library.MatchScore, library.KeepMatchScore);
+            // The loosest score that lights or keeps any shape lit, so that no shape's decision changes.
+            float largestScale = 0f;
+            foreach (float scale in Templates.MatchScoreScales)
+                largestScale = Mathf.Max(largestScale, scale);
+            threshold = Mathf.Max(library.MatchScore, library.KeepMatchScore) * largestScale;
             margin = library.MinMargin;
 
             // The tolerance keeps rounding in the division from losing the last step when the max
