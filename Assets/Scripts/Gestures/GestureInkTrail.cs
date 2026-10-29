@@ -83,7 +83,7 @@ namespace ArcaneMotion.Gestures
             hasLastSegment = false;
         }
 
-        private void OnCompleted(GestureCapture sender)
+        private void OnCompleted(GestureCapture sender, RecognitionState shown)
         {
             fading = true;
             fadeStartTime = Time.unscaledTimeAsDouble;

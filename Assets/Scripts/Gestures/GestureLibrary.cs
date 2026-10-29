@@ -17,6 +17,20 @@ namespace ArcaneMotion.Gestures
                  "stored. This keeps tracking jitter while the hand is still from adding length to the path.")]
         [SerializeField, Min(0f)] private float minPointSpacing = 0.005f;
 
+        [Tooltip("Seconds of the path after the press that are never matched, to leave out the jolt of pressing " +
+                 "the button.")]
+        [SerializeField, Min(0f)] private float startTrim = 0.014f;
+
+        [Tooltip("Seconds of the newest path that are not matched yet, to leave out the jolt of releasing the " +
+                 "button. The match on show, which release casts, lags the hand by this much.")]
+        [SerializeField, Min(0f)] private float endTrim = 0.014f;
+
+        [Tooltip("Distance in meters the matched-so-far path must grow by before the matcher runs again.")]
+        [SerializeField, Min(0f)] private float updateDistance = 0.01f;
+
+        [Tooltip("The most times per second the matcher runs for one hand. Must be above zero.")]
+        [SerializeField, Min(0f)] private float maxUpdatesPerSecond = 20f;
+
         [Tooltip("N: the number of evenly spaced points that the path and each template are resampled to before " +
                  "they are compared.")]
         [SerializeField, Min(2)] private int pointCount = 64;
@@ -54,6 +68,30 @@ namespace ArcaneMotion.Gestures
         {
             get => minPointSpacing;
             set => minPointSpacing = value;
+        }
+
+        public float StartTrim
+        {
+            get => startTrim;
+            set => startTrim = value;
+        }
+
+        public float EndTrim
+        {
+            get => endTrim;
+            set => endTrim = value;
+        }
+
+        public float UpdateDistance
+        {
+            get => updateDistance;
+            set => updateDistance = value;
+        }
+
+        public float MaxUpdatesPerSecond
+        {
+            get => maxUpdatesPerSecond;
+            set => maxUpdatesPerSecond = value;
         }
 
         public int PointCount
@@ -172,6 +210,10 @@ namespace ArcaneMotion.Gestures
             // A cut that removed the whole evaluated path would leave nothing to compare.
             if (!(maxTotalCut < 1f))
                 problems.Add($"Gesture library '{name}' has a max total cut of {maxTotalCut}, which must be below 1.");
+            // At zero, the matcher would run once per gesture and never again, with no error.
+            if (!(maxUpdatesPerSecond > 0f))
+                problems.Add($"Gesture library '{name}' has {maxUpdatesPerSecond} max updates per second, which " +
+                             "must be above zero.");
             if (keepMatchScore < matchScore)
                 problems.Add($"Gesture library '{name}' has a keep-match score of {keepMatchScore}, which must not be " +
                              $"below its match score of {matchScore}.");

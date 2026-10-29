@@ -10,6 +10,7 @@ namespace ArcaneMotion.Gestures.Tests
         private static readonly DateTime RecordedAt =
             new DateTime(2026, 10, 13, 18, 45, 1, DateTimeKind.Utc).AddTicks(1234567);
 
+        private readonly TestAssets assets = new TestAssets();
         private string folder;
 
         [SetUp]
@@ -24,6 +25,7 @@ namespace ArcaneMotion.Gestures.Tests
         {
             if (Directory.Exists(folder))
                 Directory.Delete(folder, true);
+            assets.DestroyAll();
         }
 
         private static float RandomFloat(System.Random random, float range)
@@ -34,7 +36,7 @@ namespace ArcaneMotion.Gestures.Tests
         private static GestureRecording OnePointRecording(string label)
         {
             return new GestureRecording(label, "", "Left", RecordedAt, Quaternion.identity,
-                new[] { new Vector3(0.1f, 1.2f, 0.3f) }, new[] { 0f });
+                new[] { new Vector3(0.1f, 1.2f, 0.3f) }, new[] { 0f }, default);
         }
 
         private string WriteFile(string json)
@@ -64,10 +66,15 @@ namespace ArcaneMotion.Gestures.Tests
             positions[1] = new Vector3(1.234567e-7f, -4.2e-12f, 0f);
             var headRotation = new Quaternion(
                 RandomFloat(random, 1f), RandomFloat(random, 1f), RandomFloat(random, 1f), RandomFloat(random, 1f));
+            float score = Mathf.Abs(RandomFloat(random, 1f));
+            float size = Mathf.Abs(RandomFloat(random, 0.5f));
+            GestureShape shape = assets.Shape("Line Right", false, false, Vector3.left, Vector3.right);
+            var shown = new RecognitionState(RecognitionStatus.Spell, shape,
+                assets.Spell("PH Line Right", shape, 0.03f, 0.6f), score, size, 0f, 0.4f, 0.1f, 0.4f);
 
             // The note has characters that JSON must escape.
             var saved = new GestureRecording("Line Right", "sloppy, \"fast\"", "Right", RecordedAt, headRotation,
-                positions, times);
+                positions, times, shown);
             string path = Path.Combine(folder, "Line Right", "take.json");
             saved.Save(path);
             GestureRecording loaded = GestureRecording.Load(path);
@@ -81,6 +88,47 @@ namespace ArcaneMotion.Gestures.Tests
             Assert.That(loaded.HeadRotation, Is.EqualTo(headRotation));
             Assert.That(loaded.Positions, Is.EqualTo(positions));
             Assert.That(loaded.Times, Is.EqualTo(times));
+            Assert.That(loaded.Shown.Status, Is.EqualTo("Spell"));
+            Assert.That(loaded.Shown.Shape, Is.EqualTo("Line Right"));
+            Assert.That(loaded.Shown.Spell, Is.EqualTo("PH Line Right"));
+            Assert.That(loaded.Shown.Score, Is.EqualTo(score));
+            Assert.That(loaded.Shown.Size, Is.EqualTo(size));
+        }
+
+        // Before the matcher first runs, or when no shape scores under the cutoff, there is no shape
+        // and the score is infinity.
+        [Test]
+        public void SaveThenLoad_KeepsAShownStateWithNoShape()
+        {
+            var shown = new RecognitionState(RecognitionStatus.None, null, null, float.PositiveInfinity, 0f, 0f, 0f,
+                0f, 0f);
+            var saved = new GestureRecording("None", "", "Left", RecordedAt, Quaternion.identity,
+                new[] { new Vector3(0.1f, 1.2f, 0.3f) }, new[] { 0f }, shown);
+            string path = Path.Combine(folder, "take.json");
+            saved.Save(path);
+
+            GestureRecording loaded = GestureRecording.Load(path);
+
+            Assert.That(loaded.Shown.Status, Is.EqualTo("None"));
+            Assert.That(loaded.Shown.Shape, Is.Empty);
+            Assert.That(loaded.Shown.Spell, Is.Empty);
+            Assert.That(loaded.Shown.Score, Is.EqualTo(float.PositiveInfinity));
+        }
+
+        // As the recordings saved before they held the state on show.
+        [Test]
+        public void Load_RecordingWithoutAShownState_LoadsItEmpty()
+        {
+            string path = WriteFile("{\"formatVersion\":1,\"label\":\"Circle\",\"note\":\"Clean\",\"hand\":\"Right\"," +
+                                    "\"recordedAtUtc\":\"2026-10-21T20:50:17.7921710Z\"," +
+                                    "\"headRotation\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":1.0}," +
+                                    "\"positions\":[{\"x\":0.1,\"y\":1.2,\"z\":0.3}],\"times\":[0.0]}");
+
+            GestureRecording loaded = GestureRecording.Load(path);
+
+            Assert.That(loaded.Shown.Status, Is.Empty);
+            Assert.That(loaded.Shown.Shape, Is.Empty);
+            Assert.That(loaded.Shown.Spell, Is.Empty);
         }
 
         [Test]

@@ -38,11 +38,19 @@ namespace ArcaneMotion.Gestures
         // press. Every frame's sample is raised, including those the session does not store.
         public event Action<GestureCapture, Vector3, float> Sampled;
 
-        // Raised, with this capture, on the first frame the button reads as released after a
-        // gesture. A gesture abandoned by disabling this component raises nothing.
-        public event Action<GestureCapture> Completed;
+        // Raised, with this capture and the new state, in a frame where the session's status
+        // changed, or its shape or spell changed while lit, after Sampled.
+        public event Action<GestureCapture, RecognitionState> StateChanged;
+
+        // Raised, with this capture and the state on show, on the first frame the button reads as
+        // released after a gesture. The spell system casts when the status is Spell. A gesture
+        // abandoned by disabling this component raises nothing.
+        public event Action<GestureCapture, RecognitionState> Completed;
 
         public bool IsCapturing { get; private set; }
+
+        // The state on show for the current gesture, or the last gesture's until the next press.
+        public RecognitionState State => session.State;
 
         // The current gesture's stored points in tracking space, or the last gesture's until the
         // next press.
@@ -56,8 +64,8 @@ namespace ArcaneMotion.Gestures
 
         public Transform TrackingSpace => trackingSpace;
 
-        // Creates a new session each time, so that in Play Mode, toggling this component applies
-        // edits to the library.
+        // Creates a new session each time, which compiles the library's templates, so that in Play
+        // Mode, toggling this component applies edits to the library.
         private void OnEnable()
         {
             if (library == null || trackedController == null || trackingSpace == null || head == null)
@@ -68,7 +76,16 @@ namespace ArcaneMotion.Gestures
                     $"{nameof(GestureCapture)} on '{name}' needs Library, Tracked Controller, Tracking Space, and Head assigned.");
             }
 
-            session = new GestureSession(library);
+            try
+            {
+                session = new GestureSession(library);
+            }
+            catch
+            {
+                // The library has problems, which the exception lists. Disabled, as above.
+                enabled = false;
+                throw;
+            }
             captureButton.EnableDirectActionIfModeUsed();
         }
 
@@ -101,7 +118,7 @@ namespace ArcaneMotion.Gestures
                 if (IsCapturing)
                 {
                     IsCapturing = false;
-                    Completed?.Invoke(this);
+                    Completed?.Invoke(this, session.State);
                 }
                 return;
             }
@@ -119,8 +136,10 @@ namespace ArcaneMotion.Gestures
             }
             Vector3 position = trackingSpace.InverseTransformPoint(trackedController.position);
             float time = (float)(now - pressTime);
-            session.Advance(position, time);
+            bool stateChanged = session.Advance(position, time);
             Sampled?.Invoke(this, position, time);
+            if (stateChanged)
+                StateChanged?.Invoke(this, session.State);
         }
 
         // Why the capture button cannot read input, or null if no problem that can be checked is found.
