@@ -21,3 +21,4 @@ MonoBehaviour:
   closed: 1
   bothDirections: 0
   ignoredAxis: 3
+  matchScoreScale: 1.3

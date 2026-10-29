@@ -18,3 +18,4 @@ MonoBehaviour:
   closed: 0
   bothDirections: 0
   ignoredAxis: 3
+  matchScoreScale: 0.7
