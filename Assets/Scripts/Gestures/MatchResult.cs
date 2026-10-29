@@ -5,7 +5,8 @@ namespace ArcaneMotion.Gestures
     //
     // A shape's score is its best over every cut and variant, and it is exact while it is below the
     // cutoff: min(threshold, the winner's score) + margin, where the threshold is the larger of the
-    // match and keep-match scores. At or above the cutoff no decision can change, so the matcher
+    // match and keep-match scores, times the largest match score scale of any shape. At or above the
+    // cutoff no decision can change, so the matcher
     // stops looking: such a score may be above the shape's true best, and it is infinity if the
     // shape never got under the cutoff.
     public sealed class MatchResult

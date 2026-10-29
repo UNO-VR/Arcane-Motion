@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7533248264876230047}
   - component: {fileID: 2772852503496918819}
   - component: {fileID: -7643345584664130613}
+  - component: {fileID: 2929015765814331035}
   m_Layer: 0
   m_Name: Gesture Hand
   m_TagString: Untagged
@@ -213,6 +214,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.GestureInkTrail
   neutralColor: {r: 0.4, g: 0.8, b: 1, a: 1}
+  dimmedColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.35}
+  wrongSizeColor: {r: 1, g: 0.3, b: 0.1, a: 1}
   fadeDuration: 0.5
 --- !u!114 &-7643345584664130613
 MonoBehaviour:
@@ -229,3 +232,18 @@ MonoBehaviour:
   label: 
   note: 
   hand: 0
+--- !u!114 &2929015765814331035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7196321979963344852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca29e6a2ff1feae43a03509d4ade33d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArcaneMotion.Gestures::ArcaneMotion.Gestures.GestureHaptics
+  hapticPlayer: {fileID: 0}
+  amplitude: 0.3
+  duration: 0.05

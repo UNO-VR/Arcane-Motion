@@ -17,3 +17,5 @@ MonoBehaviour:
   - {x: 0.6, y: 0, z: 0}
   closed: 0
   bothDirections: 0
+  ignoredAxis: 3
+  matchScoreScale: 0.7

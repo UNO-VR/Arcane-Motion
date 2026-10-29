@@ -4,13 +4,16 @@ namespace ArcaneMotion.Gestures
 {
     // Turns each MatchResult into a RecognitionState, and remembers which shape is lit between
     // updates. The best-scoring shape lights when its score is below the match score, or the
-    // keep-match score while it is already lit, and the runner-up scores at least the min margin
-    // higher. Only then is a spell chosen, by size, from that shape's spells: shape before size.
+    // keep-match score while it is already lit, each times the shape's match score scale, and the
+    // runner-up scores at least the min margin higher. A shape that is not the best never lights,
+    // however loose its own scores. Only then is a spell chosen, by size, from that shape's spells:
+    // shape before size.
     public sealed class GestureRecognizer
     {
         private readonly GestureShape[] shapes;
-        private readonly float matchScore;
-        private readonly float keepMatchScore;
+        // Each shape's match and keep-match scores, scaled by its match score scale.
+        private readonly float[] matchScores;
+        private readonly float[] keepMatchScores;
         private readonly float minMargin;
         // Each spell with the index of its shape in shapes, and its size range.
         private readonly SpellGesture[] spells;
@@ -29,8 +32,13 @@ namespace ArcaneMotion.Gestures
                 throw new ArgumentNullException(nameof(templates));
 
             shapes = templates.Shapes;
-            matchScore = library.MatchScore;
-            keepMatchScore = library.KeepMatchScore;
+            matchScores = new float[shapes.Length];
+            keepMatchScores = new float[shapes.Length];
+            for (int s = 0; s < shapes.Length; s++)
+            {
+                matchScores[s] = library.MatchScore * templates.MatchScoreScales[s];
+                keepMatchScores[s] = library.KeepMatchScore * templates.MatchScoreScales[s];
+            }
             minMargin = library.MinMargin;
 
             spells = library.Spells.ToArray();
@@ -64,7 +72,7 @@ namespace ArcaneMotion.Gestures
 
             float score = result.Score(candidate);
             float size = result.Size(candidate);
-            float limit = candidate == litShape ? keepMatchScore : matchScore;
+            float limit = candidate == litShape ? keepMatchScores[candidate] : matchScores[candidate];
             // An infinite runner-up score leaves an infinite margin.
             bool lit = score < limit && result.RunnerUpScore - score >= minMargin;
             litShape = lit ? candidate : -1;

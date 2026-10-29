@@ -94,6 +94,21 @@ namespace ArcaneMotion.Gestures.Tests
             AssertVariant(templates, 1, Expected(EllPointCount, i => EllAt(EllLength - EllSpacing * i)), "Reverse");
         }
 
+        // The L's last side goes up and away from the player. Its points stay spaced by the path length
+        // with depth, as a gesture's are, and then lose their depth before they are normalized.
+        [Test]
+        public void IgnoredAxis_IsDroppedAfterResamplingAndBeforeNormalizing()
+        {
+            GestureShape ell = Ell(false);
+            ell.IgnoredAxis = IgnoredAxis.Z;
+            GestureTemplates templates = Compile(EllPointCount, 3, ell);
+
+            Assert.That(templates.IgnoredAxes, Is.EqualTo(new[] { IgnoredAxis.Z }));
+            AssertVariant(templates, 0,
+                Expected(EllPointCount, i => GestureNormalization.Flatten(EllAt(EllSpacing * i), IgnoredAxis.Z)),
+                "Forward");
+        }
+
         [Test]
         public void ClosedShape_Has2KPlus1Variants_EachShiftedByWholeLoopPoints()
         {
