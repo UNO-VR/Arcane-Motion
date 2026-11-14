@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using ArcaneMotion.Gestures;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace ArcaneMotion.Spells
 {
+    // Everything a listener needs to know about one cast.
     public readonly struct SpellCastInfo
     {
         public SpellCastInfo(SpellGesture spell, RecognitionState state, Vector3 origin, Quaternion rotation)
@@ -15,7 +17,7 @@ namespace ArcaneMotion.Spells
             Rotation = rotation;
         }
 
-        // The spell asset the player drew (for example Star). Map this to behavior.
+        // The spell asset the player drew (for example PH Star). Map this to behavior.
         public SpellGesture Spell { get; }
 
         // The recognition state at release: shape, score, size.
@@ -34,6 +36,29 @@ namespace ArcaneMotion.Spells
     //
     // A cast happens only when the gesture is released while the status is Spell. To react to casts
     // from other scripts, subscribe to Cast (C#) or add a listener to On Cast (Inspector).
+    // One spell's projectile.
+    [Serializable]
+    public class SpellEffect
+    {
+        [Tooltip("The spell this entry is for, for example PH Star or PH Small Circle.")]
+        [SerializeField] private SpellGesture spell;
+
+        [Tooltip("The prefab fired for this spell. It needs a Collider.")]
+        [SerializeField] private GameObject prefab;
+
+        [Tooltip("Colors the prefab's particle systems and trails with the spell's ink color. Leave off " +
+                 "if the prefab's own colors are already right.")]
+        [SerializeField] private bool tintWithInk;
+
+        [Tooltip("This spell's speed in meters per second, or 0 to use the Spell Caster's Projectile Speed.")]
+        [SerializeField, Min(0f)] private float speed;
+
+        public SpellGesture Spell => spell;
+        public GameObject Prefab => prefab;
+        public bool TintWithInk => tintWithInk;
+        public float Speed => speed;
+    }
+
     [RequireComponent(typeof(GestureCapture))]
     public class SpellCaster : MonoBehaviour
     {
@@ -46,8 +71,12 @@ namespace ArcaneMotion.Spells
                  "spells listen to the event.")]
         [SerializeField] private bool fireTestProjectile = true;
 
-        [Tooltip("Optional. A prefab with a Collider and a SpellProjectile. If empty, a plain orb is built " +
-                 "at runtime and tinted with the spell's ink color.")]
+        [Tooltip("One entry per spell: which prefab it fires. A spell with no entry, or an entry with no " +
+                 "prefab, uses the Fallback Prefab, or the plain orb if that is empty too.")]
+        [SerializeField] private List<SpellEffect> spellEffects = new List<SpellEffect>();
+
+        [Tooltip("Optional. Used for any spell without its own entry above. A prefab with a Collider. If " +
+                 "empty, a plain orb is built at runtime and tinted with the spell's ink color.")]
         [SerializeField] private GameObject projectilePrefab;
 
         [SerializeField, Min(0f)] private float projectileSpeed = 6f;
@@ -117,15 +146,57 @@ namespace ArcaneMotion.Spells
             return $"status={s.Status}, shape={shape}, spell={spell}, size={s.Size:0.000}m, score={s.Score:0.000}";
         }
 
+        private SpellEffect FindEffect(SpellGesture spell)
+        {
+            foreach (SpellEffect effect in spellEffects)
+                if (effect != null && effect.Spell == spell)
+                    return effect;
+            return null;
+        }
+
+        // Colors every particle system and trail in the instance.
+        private static void Tint(GameObject instance, Color color)
+        {
+            foreach (ParticleSystem particles in instance.GetComponentsInChildren<ParticleSystem>())
+            {
+                ParticleSystem.MainModule main = particles.main;
+                main.startColor = color;
+            }
+            foreach (TrailRenderer trail in instance.GetComponentsInChildren<TrailRenderer>())
+            {
+                trail.startColor = color;
+                trail.endColor = new Color(color.r, color.g, color.b, 0f);
+            }
+        }
+
+        private void OnValidate()
+        {
+            for (int i = 0; i < spellEffects.Count; i++)
+            {
+                if (spellEffects[i] == null || spellEffects[i].Spell == null)
+                    continue;
+                for (int j = 0; j < i; j++)
+                    if (spellEffects[j] != null && spellEffects[j].Spell == spellEffects[i].Spell)
+                        Debug.LogWarning($"[Spell] {name}: {spellEffects[i].Spell.name} has more than one entry; " +
+                                         "only the first is used.", this);
+            }
+        }
+
         private void FireProjectile(SpellCastInfo info)
         {
             Vector3 aim = info.Rotation * Vector3.forward;
             Vector3 position = info.Origin + aim * spawnOffset;
 
+            SpellEffect effect = FindEffect(info.Spell);
+            GameObject prefab = effect != null && effect.Prefab != null ? effect.Prefab : projectilePrefab;
+            float speed = effect != null && effect.Speed > 0f ? effect.Speed : projectileSpeed;
+
             GameObject orb;
-            if (projectilePrefab != null)
+            if (prefab != null)
             {
-                orb = Instantiate(projectilePrefab, position, info.Rotation);
+                orb = Instantiate(prefab, position, info.Rotation);
+                if (effect != null && effect.Prefab != null && effect.TintWithInk)
+                    Tint(orb, info.Spell.InkColor);
             }
             else
             {
@@ -141,7 +212,7 @@ namespace ArcaneMotion.Spells
                 body = orb.AddComponent<Rigidbody>();
             body.useGravity = false;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            body.linearVelocity = aim * projectileSpeed;
+            body.linearVelocity = aim * speed;
 
             if (orb.GetComponent<SpellProjectile>() == null)
                 orb.AddComponent<SpellProjectile>();
