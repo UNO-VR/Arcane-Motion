@@ -45,6 +45,24 @@ namespace ArcaneMotion.Gestures
             return true;
         }
 
+        // The point with the ignored axis set to 0, which puts it in the plane of the other two axes.
+        public static Vector3 Flatten(Vector3 point, IgnoredAxis ignoredAxis)
+        {
+            switch (ignoredAxis)
+            {
+                case IgnoredAxis.X:
+                    point.x = 0f;
+                    break;
+                case IgnoredAxis.Y:
+                    point.y = 0f;
+                    break;
+                case IgnoredAxis.Z:
+                    point.z = 0f;
+                    break;
+            }
+            return point;
+        }
+
         // The rotation from tracking space into the gesture frame: tracking space turned about
         // the vertical axis so that the direction the head faces is +z. In the gesture frame, x
         // is the player's right, y is up, and z points away from the player.

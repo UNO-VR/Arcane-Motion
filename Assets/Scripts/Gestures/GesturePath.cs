@@ -40,6 +40,31 @@ namespace ArcaneMotion.Gestures
             return lengths[index];
         }
 
+        // The path length at the given time, interpolating linearly between the stored points around
+        // it: 0 before the first point, and Length after the last. The times must not decrease.
+        public float LengthAtTime(float time)
+        {
+            if (Count == 0 || time <= times[0])
+                return 0f;
+            if (time >= times[Count - 1])
+                return Length;
+
+            // The last point at or before the time. The next point is after it, so the division is safe.
+            int low = 0;
+            int high = Count - 2;
+            while (low < high)
+            {
+                int middle = (low + high + 1) / 2;
+                if (times[middle] <= time)
+                    low = middle;
+                else
+                    high = middle - 1;
+            }
+            float length = Mathf.Lerp(lengths[low], lengths[low + 1], (time - times[low]) / (times[low + 1] - times[low]));
+            // Rounding in the interpolation must not reach past the segment, and past the path at its end.
+            return Mathf.Min(length, lengths[low + 1]);
+        }
+
         public void Clear()
         {
             Count = 0;
