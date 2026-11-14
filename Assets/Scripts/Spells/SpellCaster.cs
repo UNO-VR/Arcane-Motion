@@ -89,6 +89,9 @@ namespace ArcaneMotion.Spells
         [Tooltip("Logs every recognition change and every release to the Console.")]
         [SerializeField] private bool logToConsole = true;
 
+        // The color property of URP's Lit shader, which the plain orb's sphere gets in the Editor.
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+
         private GestureCapture capture;
 
         public event Action<SpellCastInfo> Cast;
@@ -204,7 +207,9 @@ namespace ArcaneMotion.Spells
                 orb.name = $"Spell Orb ({info.Spell.name})";
                 orb.transform.SetPositionAndRotation(position, info.Rotation);
                 orb.transform.localScale = Vector3.one * projectileSize;
-                orb.GetComponent<Renderer>().material.color = info.Spell.InkColor;
+                var color = new MaterialPropertyBlock();
+                color.SetColor(BaseColorId, info.Spell.InkColor);
+                orb.GetComponent<Renderer>().SetPropertyBlock(color);
             }
 
             Rigidbody body = orb.GetComponent<Rigidbody>();
