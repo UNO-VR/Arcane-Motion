@@ -31929,7 +31929,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3487427038599530863, guid: ed570fc9e36457f49824b08ea055d6ee, type: 3}
       propertyPath: looping
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3487427038599530863, guid: ed570fc9e36457f49824b08ea055d6ee, type: 3}
       propertyPath: lengthInSec
