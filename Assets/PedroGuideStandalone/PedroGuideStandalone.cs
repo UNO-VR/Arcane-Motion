@@ -2,10 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-#endif
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,7 +15,7 @@ namespace ArcaneMotion.PedroGuide
     /// <summary>
     /// Standalone VR gesture reference. All visual objects are created when the scene
     /// starts; there is no prefab, serialized asset GUID, or gesture-library dependency.
-    /// Press G in the focused Unity Game view to show / hide it.
+    /// Press the left controller's menu button, or G in the focused Unity Game view, to show / hide it.
     /// This component changes no gameplay, spells, or controller bindings.
     /// </summary>
     [DisallowMultipleComponent]
@@ -30,6 +27,7 @@ namespace ArcaneMotion.PedroGuide
         private GameObject panelRoot;
         private Camera guideCamera;
         private bool isVisible = true;
+        private readonly InputAction toggleAction = new InputAction("Toggle Guide", InputActionType.Button);
 
         public bool IsVisible { get { return isVisible; } }
 
@@ -43,6 +41,22 @@ namespace ArcaneMotion.PedroGuide
         private static readonly Color StarColor = new Color(0.9763613f, 1f, 0f, 1f);
         private static readonly Color LineColor = new Color(0.6981132f, 0.26124355f, 0.5924211f, 1f);
 
+        private void Awake()
+        {
+            toggleAction.AddBinding("<Keyboard>/g");
+            toggleAction.AddBinding("<XRController>{LeftHand}/{MenuButton}");
+        }
+
+        private void OnEnable()
+        {
+            toggleAction.Enable();
+        }
+
+        private void OnDisable()
+        {
+            toggleAction.Disable();
+        }
+
         private void Start()
         {
             TryCreatePanel();
@@ -53,17 +67,11 @@ namespace ArcaneMotion.PedroGuide
             if (panelRoot == null)
                 TryCreatePanel();
 
-            bool gPressed = false;
-#if ENABLE_INPUT_SYSTEM
-            gPressed = Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            gPressed = Input.GetKeyDown(KeyCode.G);
-#endif
-            if (gPressed)
+            if (toggleAction.WasPressedThisFrame())
                 ToggleGuide();
         }
 
-        // Also callable from a future VR controller action or UnityEvent.
+        // Also callable from a UnityEvent.
         public void ToggleGuide()
         {
             SetVisible(!isVisible);
@@ -78,6 +86,7 @@ namespace ArcaneMotion.PedroGuide
 
         private void OnDestroy()
         {
+            toggleAction.Dispose();
             if (panelRoot != null)
                 Destroy(panelRoot);
         }
@@ -148,7 +157,7 @@ namespace ArcaneMotion.PedroGuide
 
             RectTransform footer = AddImage(background, "Footer", new Vector2(0f, -339f),
                 new Vector2(1080f, 45f), new Color(0.16f, 0.19f, 0.27f, 0.75f));
-            AddText(footer, "KeyboardHint", "PRESS  G  TO HIDE / SHOW THIS GUIDE  (desktop)", 22f,
+            AddText(footer, "KeyboardHint", "PRESS  MENU (LEFT CONTROLLER)  OR  G  TO HIDE / SHOW THIS GUIDE", 22f,
                 Vector2.zero, new Vector2(1010f, 38f), White, TextAlignmentOptions.Center, FontStyles.Bold);
         }
 
